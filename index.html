@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Control — Vik Mehta</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #080d1a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  .header { padding: 32px 40px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; }
+  .header-left h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+  .header-left h1 span { color: #818cf8; }
+  .header-left p { font-size: 13px; color: #475569; margin-top: 3px; }
+  .updated { font-size: 12px; color: #334155; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #475569; margin-bottom: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card { background: #111827; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 20px; transition: border-color 0.2s; }
+  .card:hover { border-color: rgba(99,102,241,0.3); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .card-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .card-client { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .badge-live    { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+  .badge-active  { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
+  .badge-blocked { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+  .badge-pending { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+  .badge-queued  { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.2); }
+  .card-next { font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5; }
+  .card-next strong { color: #94a3b8; }
+  .card-owner { margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .owner-tag { font-size: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: #64748b; padding: 2px 8px; border-radius: 4px; }
+  .owner-tag.glen { color: #818cf8; border-color: rgba(99,102,241,0.2); background: rgba(99,102,241,0.07); }
+  .owner-tag.vik { color: #34d399; border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.07); }
+  .owner-tag.india { color: #fb923c; border-color: rgba(251,146,60,0.2); background: rgba(251,146,60,0.07); }
+  .url-link { font-size: 11px; color: #4b5563; text-decoration: none; margin-top: 6px; display: inline-block; }
+  .url-link:hover { color: #818cf8; }
+  .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 8px 0; }
+  @media (max-width: 640px) {
+    .header { padding: 20px; }
+    .container { padding: 20px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Mission <span>Control</span></h1>
+    <p>Ava Digital × Velocity Logic — Active Projects</p>
+  </div>
+  <div class="updated">Updated: Feb 22, 2026</div>
+</div>
+
+<div class="container">
+
+  <!-- AVA DIGITAL -->
+  <div class="section">
+    <div class="section-title">Ava Digital Agency</div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ava Digital Website</div>
+            <div class="card-client">avadigitalagency.com</div>
+          </div>
+          <span class="badge badge-live">✓ Live</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> 32 pages live — homepage, 6 service pages, blog, 25 city pages. HubSpot forms, AI chat widget, sitemap submitted to GSC.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> GSC indexing (3–7 days). Case studies content from Vik.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <a href="https://avadigitalagency.com" target="_blank" class="url-link">↗ avadigitalagency.com</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ava AI Chat Widget</div>
+            <div class="card-client">avadigitalagency.com — hero section</div>
+          </div>
+          <span class="badge badge-live">✓ Live</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> GPT-4o powered. Fetches real site data via Jina.ai (bypasses Cloudflare). Analyst-style responses.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Lead capture (name + email) before audit results.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <a href="https://github.com/vikmehta333/ava-chat-api" target="_blank" class="url-link">↗ ava-chat-api repo</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Health One — Email Nurture</div>
+            <div class="card-client">Diti Parikh · parikh.diti@gmail.com</div>
+          </div>
+          <span class="badge badge-pending">⏳ Scheduled</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> Email 1 sent Feb 20. Email 2 drafted (Ubersuggest stats: 438 visitors/mo, DA 24, $0 paid).</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Send Email 2 — <strong>Tue Feb 24</strong>.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <span class="owner-tag vik">Vik approves</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Fuel Me Blog Posts</div>
+            <div class="card-client">Fuel Me / Newmed — 5 posts on staging</div>
+          </div>
+          <span class="badge badge-blocked">⚠ Blocked</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> 5 posts live on staging (Sep 2025 dates). Not yet pushed to production site.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Nitika + Muhammad push to live. Glen following up Mon Feb 23.</div>
+        <div class="card-owner">
+          <span class="owner-tag india">Nitika / Muhammad</span>
+          <span class="owner-tag glen">Glen tracking</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">CollValServ — Lead Strategy</div>
+            <div class="card-client">Choudhry@collvalserv.com</div>
+          </div>
+          <span class="badge badge-pending">⏳ Pending</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> Full strategy + proposal sent. LinkedIn Lead Engine is the big build ($15–25K MRR potential for appraisal industry).</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Awaiting Vik go/no-go on outreach.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <span class="owner-tag vik">Vik decides</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Ava Digital Outbound Engine</div>
+            <div class="card-client">Ava Digital own prospecting</div>
+          </div>
+          <span class="badge badge-queued">◦ Queued</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> Strategy complete. ICP leaning healthcare/medical suburbs Chicago. Lean test planned: Apollo free tier + 2 emails.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Confirm ICP → pull 50 leads → draft sequence for approval.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <span class="owner-tag vik">Vik confirms ICP</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VELOCITY LOGIC -->
+  <div class="section">
+    <div class="section-title">Velocity Logic Group</div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG Signal Hub</div>
+            <div class="card-client">Sales intelligence + outreach platform</div>
+          </div>
+          <span class="badge badge-active">🚀 Deploying</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Phase 1 built:</strong> HubSpot sync (4,371 contacts), signal scoring, prospect list, ICP qualification layer, Review Queue.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Vik sends Vercel token → Glen deploys → Vik runs HubSpot sync → starts reviewing queue.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Phase 2:</strong> Warmly webhook, LinkedIn signals, Phantombuster connector.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen</span>
+          <span class="owner-tag vik">Vik built Phase 1</span>
+          <a href="https://github.com/vikmehta333/vlg-signal-hub" target="_blank" class="url-link">↗ repo</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG Outbound Test</div>
+            <div class="card-client">LinkedIn + Email — warm leads</div>
+          </div>
+          <span class="badge badge-queued">◦ Queued</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Plan:</strong> Phantombuster (free) pulls post reactors + profile viewers → Apollo enriches emails → manual LinkedIn + 2-email sequence to 50 Hot prospects.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Signal Hub live first → pull list → Vik reviews ICP queue → launch.</div>
+        <div class="card-owner">
+          <span class="owner-tag vik">Vik sends LI messages</span>
+          <span class="owner-tag glen">Glen builds sequences</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">GMB Review Reply Agent</div>
+            <div class="card-client">Newmed Immediate Care / Fuel Me</div>
+          </div>
+          <span class="badge badge-queued">◦ Queued</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Idea:</strong> AI drafts GMB review replies → Vik approves → auto-posts to Google Business Profile.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Vik go/no-go. Needs Google Business Profile API access.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen builds</span>
+          <span class="owner-tag vik">Vik approves</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INDIA TEAM -->
+  <div class="section">
+    <div class="section-title">India Team (Nitika + Muhammad)</div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Velocity Logic Landing Pages</div>
+            <div class="card-client">velocitylogicgroup.com</div>
+          </div>
+          <span class="badge badge-pending">⏳ Pending</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> India team created 2 landing pages. Vik said move to footer. Not yet confirmed as done.</div>
+        <div class="card-next" style="margin-top:6px;"><strong>Next:</strong> Confirm footer placement complete.</div>
+        <div class="card-owner">
+          <span class="owner-tag india">India team</span>
+          <span class="owner-tag glen">Glen tracking</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Project Status Report</div>
+            <div class="card-client">All Ava Digital active projects</div>
+          </div>
+          <span class="badge badge-pending">⏳ Requested</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-next"><strong>Status:</strong> Glen following up with Nitika Mon Feb 23 — requesting full project plan for all active work: owner, deadline, status.</div>
+        <div class="card-owner">
+          <span class="owner-tag glen">Glen → Nitika</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
