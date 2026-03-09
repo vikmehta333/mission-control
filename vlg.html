@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Control — Velocity Logic Group</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    background:#080d1a; color:#e2e8f0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    min-height:100vh; overflow-x:auto;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  .header {
+    padding:20px 32px;
+    border-bottom:1px solid rgba(255,255,255,0.07);
+    background:#080d1a; position:sticky; top:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .header-left h1 { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+  .header-left h1 span { color:#34d399; }
+  .header-left p { font-size:12px; color:#475569; margin-top:2px; }
+  .nav { display:flex; gap:12px; }
+  .nav a { font-size:12px; color:#64748b; text-decoration:none; padding:6px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); }
+  .nav a.active { background:rgba(52,211,153,0.1); color:#34d399; border-color:rgba(52,211,153,0.3); }
+  .nav a:hover { color:#fff; }
+  .updated { font-size:11px; color:#334155; }
+
+  /* ── REVENUE SUMMARY BAR ────────────────────────────── */
+  .rev-bar {
+    background:linear-gradient(135deg,#0d1a2e,#0a1525);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    padding:16px 32px;
+    display:flex; gap:0; align-items:stretch;
+  }
+  .rev-bar-label {
+    font-size:11px; font-weight:700; letter-spacing:1.5px;
+    text-transform:uppercase; color:#475569;
+    display:flex; align-items:center;
+    padding-right:28px; margin-right:28px;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .rev-stats { display:flex; gap:0; flex:1; }
+  .rev-stat {
+    flex:1; padding:0 24px;
+    border-right:1px solid rgba(255,255,255,0.06);
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .rev-stat:last-child { border-right:none; }
+  .rev-stat .rv-val {
+    font-size:22px; font-weight:800; line-height:1;
+    margin-bottom:3px;
+  }
+  .rv-green  { color:#10b981; }
+  .rv-blue   { color:#60a5fa; }
+  .rv-purple { color:#a78bfa; }
+  .rv-orange { color:#fb923c; }
+  .rev-stat .rv-lbl { font-size:11px; color:#475569; }
+
+  /* ── BOARD ──────────────────────────────────────────── */
+  .board-wrap { padding:20px 32px 48px; }
+  .board { display:flex; gap:16px; align-items:flex-start; min-width:max-content; }
+
+  /* ── COLUMN ─────────────────────────────────────────── */
+  .col { width:300px; min-width:300px; background:#0d1525; border:1px solid rgba(255,255,255,0.06); border-radius:14px; overflow:hidden; }
+  .col-header {
+    padding:14px 16px 12px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .col-title { font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+  .col-count { font-size:11px; font-weight:600; background:rgba(255,255,255,0.07); color:#64748b; padding:2px 8px; border-radius:10px; }
+  .col-backlog .col-header   { border-top:3px solid #334155; }
+  .col-inprogress .col-header { border-top:3px solid #6366f1; }
+  .col-review .col-header    { border-top:3px solid #f59e0b; }
+  .col-blocked .col-header   { border-top:3px solid #ef4444; }
+  .col-live .col-header      { border-top:3px solid #10b981; }
+  .col-backlog .col-title    { color:#64748b; }
+  .col-inprogress .col-title { color:#818cf8; }
+  .col-review .col-title     { color:#fbbf24; }
+  .col-blocked .col-title    { color:#f87171; }
+  .col-live .col-title       { color:#34d399; }
+  .col-body { padding:12px; display:flex; flex-direction:column; gap:10px; }
+
+  /* ── CARD ───────────────────────────────────────────── */
+  .card {
+    background:#111827; border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px; padding:14px;
+    transition:border-color 0.2s, transform 0.15s; cursor:default;
+  }
+  .card:hover { border-color:rgba(129,140,248,0.25); transform:translateY(-1px); }
+
+  /* Revenue left-border accent */
+  .card.rev-direct  { border-left:3px solid #10b981; }
+  .card.rev-pipeline { border-left:3px solid #60a5fa; }
+  .card.rev-retention { border-left:3px solid #f59e0b; }
+  .card.rev-enabler { border-left:3px solid #334155; }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .card-title { font-size:13px; font-weight:700; color:#fff; line-height:1.3; }
+  .card-client { font-size:11px; color:#475569; margin-top:2px; }
+
+  .priority { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+  .p-high   { background:#ef4444; box-shadow:0 0 6px rgba(239,68,68,0.5); }
+  .p-medium { background:#f59e0b; }
+  .p-low    { background:#334155; }
+
+  /* Revenue badge */
+  .rev-badge {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11px; font-weight:700; padding:3px 8px;
+    border-radius:5px; margin-bottom:6px;
+  }
+  .rb-direct    { background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.25); }
+  .rb-pipeline  { background:rgba(96,165,250,0.1); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
+  .rb-retention { background:rgba(245,158,11,0.1); color:#fbbf24; border:1px solid rgba(245,158,11,0.2); }
+  .rb-enabler   { background:rgba(100,116,139,0.1); color:#64748b; border:1px solid rgba(100,116,139,0.15); }
+
+  /* Business tag */
+  .tags { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  .biz-tag { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; letter-spacing:0.5px; text-transform:uppercase; }
+  .biz-vlg  { background:rgba(52,211,153,0.1); color:#34d399; border:1px solid rgba(52,211,153,0.2); }
+
+  .card-divider { height:1px; background:rgba(255,255,255,0.05); margin:8px 0; }
+  .card-desc { font-size:12px; color:#64748b; line-height:1.55; margin-bottom:8px; }
+  .card-desc strong { color:#94a3b8; }
+
+  .card-next {
+    font-size:11px; color:#4b5563;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:6px; padding:7px 10px;
+    line-height:1.5; margin-bottom:8px;
+  }
+  .card-next strong { color:#818cf8; }
+  .card-next.blocked strong { color:#f87171; }
+
+  .stage-bar { margin:8px 0 4px; }
+  .stage-bar-label { font-size:10px; color:#475569; margin-bottom:4px; }
+  .stage-track { height:3px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden; }
+  .stage-fill { height:100%; border-radius:2px; }
+  .fill-10  { width:10%;  background:#334155; }
+  .fill-25  { width:25%;  background:#6366f1; }
+  .fill-40  { width:40%;  background:#6366f1; }
+  .fill-60  { width:60%;  background:#f59e0b; }
+  .fill-75  { width:75%;  background:#818cf8; }
+  .fill-90  { width:90%;  background:#10b981; }
+  .fill-100 { width:100%; background:#10b981; }
+
+  .agents { display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:4px; }
+  .agent { font-size:10px; font-weight:600; padding:3px 8px; border-radius:5px; display:flex; align-items:center; gap:4px; }
+  .agent-glen   { background:rgba(99,102,241,0.1); color:#818cf8; border:1px solid rgba(99,102,241,0.2); }
+  .agent-vik    { background:rgba(52,211,153,0.08); color:#34d399; border:1px solid rgba(52,211,153,0.18); }
+  .agent-india  { background:rgba(251,146,60,0.09); color:#fb923c; border:1px solid rgba(251,146,60,0.18); }
+
+  .card-link { font-size:10px; color:#334155; text-decoration:none; margin-left:auto; display:inline-flex; align-items:center; gap:3px; margin-top:4px; }
+  .card-link:hover { color:#818cf8; }
+  .date-chip { font-size:10px; background:rgba(245,158,11,0.1); color:#fbbf24; border:1px solid rgba(245,158,11,0.2); padding:2px 7px; border-radius:4px; font-weight:600; }
+
+  /* ── FOOTER ─────────────────────────────────────────── */
+  .footer { padding:16px 32px; border-top:1px solid rgba(255,255,255,0.05); font-size:11px; color:#1e293b; display:flex; justify-content:space-between; }
+
+  /* ── LEGEND ─────────────────────────────────────────── */
+  .rev-legend {
+    display:flex; gap:16px; align-items:center;
+    padding:10px 32px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    background:#080d1a;
+  }
+  .rev-legend-label { font-size:11px; color:#334155; margin-right:4px; }
+  .rl-item { display:flex; align-items:center; gap:5px; font-size:11px; }
+  .rl-bar { width:14px; height:10px; border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-left">
+    <h1>Mission <span>Control</span></h1>
+    <p>Velocity Logic Group — Revenue-Prioritized Project Board</p>
+  </div>
+  <div class="nav">
+    <a href="vlg.html" class="active">VLG</a>
+    <a href="ava.html">Ava Digital</a>
+  </div>
+  <div class="updated">Updated: Mar 9, 2026</div>
+</div>
+
+<!-- ── REVENUE SUMMARY BAR ────────────────────────────── -->
+<div class="rev-bar">
+  <div class="rev-bar-label">💰 VLG Revenue</div>
+  <div class="rev-stats">
+    <div class="rev-stat">
+      <div class="rv-val rv-green">$13,500+</div>
+      <div class="rv-lbl">Direct — Proposals Out</div>
+    </div>
+    <div class="rev-stat">
+      <div class="rv-val rv-blue">$3,000–6,500<span style="font-size:13px; font-weight:600;">/mo</span></div>
+      <div class="rv-lbl">Pipeline — Active Nurture</div>
+    </div>
+    <div class="rev-stat">
+      <div class="rv-val rv-orange">Retainer</div>
+      <div class="rv-lbl">SEO + Dev Work</div>
+    </div>
+    <div class="rev-stat">
+      <div class="rv-val rv-purple">1 Item</div>
+      <div class="rv-lbl">Blocked</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── REVENUE LEGEND ─────────────────────────────────── -->
+<div class="rev-legend">
+  <span class="rev-legend-label">Card border =</span>
+  <div class="rl-item"><div class="rl-bar" style="background:#10b981"></div><span style="color:#10b981;">Direct Revenue</span></div>
+  <div class="rl-item"><div class="rl-bar" style="background:#60a5fa"></div><span style="color:#60a5fa;">Pipeline</span></div>
+  <div class="rl-item"><div class="rl-bar" style="background:#f59e0b"></div><span style="color:#fbbf24;">Retention</span></div>
+  <div class="rl-item"><div class="rl-bar" style="background:#334155"></div><span style="color:#64748b;">Enabler</span></div>
+</div>
+
+<div class="board-wrap">
+<div class="board">
+
+  <!-- ══ COL 1: BACKLOG ════════════════════════════════ -->
+  <div class="col col-backlog">
+    <div class="col-header">
+      <div class="col-title">◦ Backlog</div>
+      <span class="col-count">5</span>
+    </div>
+    <div class="col-body">
+
+      <!-- VLG Product One-Pagers -->
+      <div class="card rev-direct">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG Product One-Pagers → PDF</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-direct">📄 Sales Enablement</span>
+        </div>
+        <div class="card-desc">One-pager per VLG product → PDF for sales outreach and partnerships.</div>
+        <div class="card-next"><strong>Waiting on:</strong> Product list from Vik</div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen (builds)</span>
+          <span class="agent agent-vik">👤 Vik (input)</span>
+        </div>
+      </div>
+
+      <!-- Paytronix Press Release -->
+      <div class="card rev-pipeline">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Paytronix Partnership Press Release</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-pipeline">📣 PR · Brand</span>
+        </div>
+        <div class="card-desc">Announce VLG + Paytronix partnership. Trade press + client distribution.</div>
+        <div class="card-next"><strong>Waiting on:</strong> Context from Vik</div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen (drafts)</span>
+          <span class="agent agent-vik">👤 Vik (context + approves)</span>
+        </div>
+      </div>
+
+      <!-- Inconvenience Inc SOW -->
+      <div class="card rev-direct">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Inconvenience Inc — SOW Redline</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-direct">📋 Contract</span>
+        </div>
+        <div class="card-desc">Review + redline SOW. RED/YELLOW/GREEN analysis via Kimi K2.5.</div>
+        <div class="card-next"><strong>Waiting on:</strong> DOCX from Vik</div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen + Kimi</span>
+        </div>
+      </div>
+
+      <!-- Signal Hub System Test -->
+      <div class="card rev-enabler">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Signal Hub — System Test</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-pipeline">⚙️ vlg-signal-hub.vercel.app</span>
+        </div>
+        <div class="card-desc">Full QA: HubSpot sync, ICP queue, prospect scoring, signal feed.</div>
+        <div class="card-next"><strong>Waiting on:</strong> Vik to trigger HubSpot sync</div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen (QA)</span>
+          <span class="agent agent-vik">👤 Vik (trigger sync)</span>
+        </div>
+      </div>
+
+      <!-- VLG LinkedIn Outbound Engine -->
+      <div class="card rev-pipeline">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG LinkedIn Outbound Engine</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-pipeline">💰 Pipeline · Lead Gen</span>
+        </div>
+        <div class="card-desc">5-phase system: Content → Lead ID (RB2B + miner) → ICP Score → Warm-Up → Outreach. Architecture doc complete.</div>
+        <div class="card-next"><strong>Next:</strong> Vik reviews Week 1 posts + approves RB2B pixel install</div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen (built)</span>
+          <span class="agent agent-vik">👤 Vik (reviews)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COL 2: IN PROGRESS ════════════════════════════ -->
+  <div class="col col-inprogress">
+    <div class="col-header">
+      <div class="col-title">⚡ In Progress</div>
+      <span class="col-count">1</span>
+    </div>
+    <div class="col-body">
+
+      <!-- VLG App Deck -->
+      <div class="card rev-enabler">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG White Label App Deck</div>
+            <div class="card-client">Velocity Logic · Design review</div>
+          </div>
+          <div class="priority p-medium"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-enabler">⚙ Enabler · Client Deliverable</span>
+        </div>
+        <div class="card-desc">Modernized comparison deck — existing vs. redesigned. 7 flows, PDF sent to vik@velocitylogicgroup.com.</div>
+        <div class="card-next"><strong>Next:</strong> Vik reviews + shares with stakeholder</div>
+        <div class="stage-bar"><div class="stage-bar-label">Progress</div><div class="stage-track"><div class="stage-fill fill-90"></div></div></div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen</span>
+          <span class="agent agent-vik">👤 Vik (shares)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COL 3: REVIEW / WAITING ═══════════════════════ -->
+  <div class="col col-review">
+    <div class="col-header">
+      <div class="col-title">⏳ Review</div>
+      <span class="col-count">4</span>
+    </div>
+    <div class="col-body">
+
+      <!-- Signal Hub -->
+      <div class="card rev-pipeline">
+        <div class="card-top">
+          <div>
+            <div class="card-title">VLG Signal Hub — HubSpot Sync</div>
+            <div class="card-client">vlg-signal-hub.vercel.app</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-pipeline">💰 Pipeline · Unlocks Outreach</span>
+        </div>
+        <div class="card-desc">Platform live. 4,371 contacts loaded. ICP layer + Review Queue built. Waiting on Vik to run sync + review top prospects.</div>
+        <div class="card-next"><strong>Next:</strong> Vik hits "HubSpot Sync" → 15 min in /qualify → outreach begins</div>
+        <div class="stage-bar"><div class="stage-bar-label">Progress</div><div class="stage-track"><div class="stage-fill fill-90"></div></div></div>
+        <div class="agents">
+          <span class="agent agent-vik">👤 Vik (sync + review)</span>
+          <span class="agent agent-glen">🎸 Glen (built)</span>
+        </div>
+        <a href="https://vlg-signal-hub.vercel.app" target="_blank" class="card-link">↗ Open Signal Hub</a>
+      </div>
+
+      <!-- LinkedIn Content Plan -->
+      <div class="card rev-pipeline">
+        <div class="card-top">
+          <div>
+            <div class="card-title">LinkedIn Week 1 Posts</div>
+            <div class="card-client">Vik Mehta + VLG Page</div>
+          </div>
+          <div class="priority p-high"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-pipeline">📱 Social · Lead Gen</span>
+        </div>
+        <div class="card-desc">6 posts drafted + QA'd overnight. Kimi K2.5 strategy brief applied. Ready for Vik review before scheduling.</div>
+        <div class="card-next"><strong>Next:</strong> Vik reviews linkedin-posts-polished.md → approve to schedule</div>
+        <div class="stage-bar"><div class="stage-bar-label">Progress</div><div class="stage-track"><div class="stage-fill fill-90"></div></div></div>
+        <div class="agents">
+          <span class="agent agent-glen">🎸 Glen (drafted)</span>
+          <span class="agent agent-vik">👤 Vik (reviews)</span>
+        </div>
+      </div>
+
+      <!-- ASC Deployment -->
+      <div class="card rev-enabler">
+        <div class="card-top">
+          <div>
+            <div class="card-title">ASC Deployment</div>
+            <div class="card-client">Softude · pradeep.jha@softude.com</div>
+          </div>
+          <div class="priority p-low"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-enabler">⚙ Stalled · Unclear Status</span>
+        </div>
+        <div class="card-desc">Stalled since Jan 16. Vik said "you guys take over." Email sent to Softude, no update since.</div>
+        <div class="card-next"><strong>Next:</strong> Follow up or Vik decides to escalate / close</div>
+        <div class="stage-bar"><div class="stage-bar-label">Progress</div><div class="stage-track"><div class="stage-fill fill-25"></div></div></div>
+        <div class="agents">
+          <span class="agent agent-vik">👤 Vik (owns)</span>
+          <span class="agent agent-glen">🎸 Glen (tracks)</span>
+        </div>
+      </div>
+
+      <!-- Velocity SEO -->
+      <div class="card rev-retention">
+        <div class="card-top">
+          <div>
+            <div class="card-title">Velocity — SEO</div>
+            <div class="card-client">Velocity Logic Group</div>
+          </div>
+          <div class="priority p-medium"></div>
+        </div>
+        <div class="tags">
+          <span class="biz-tag biz-vlg">VLG</span>
+          <span class="rev-badge rb-retention">🔄 Retention · SEO</span>
+        </div>
+        <div class="card-desc">Ongoing SEO work for Velocity Logic Group. India team managing.</div>
+        <div class="card-next"><strong>Next:</strong> Check with India team for status update</div>
+        <div class="agents">
+          <span class="agent agent-india">India Team</span>
+          <span class="agent agent-glen">🎸 Glen (tracks)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COL 4: BLOCKED ════════════════════════════════ -->
+  <div class="col col-blocked">
+    <div class="col-header">
+      <div class="col-title">⚠ Blocked</div>
+      <span class="col-count">0</span>
+    </div>
+    <div class="col-body">
+      <!-- No blocked VLG items -->
+    </div>
+  </div>
+
+  <!-- ══ COL 5: LIVE / DONE ════════════════════════════ -->
+  <div class="col col-live">
+    <div class="col-header">
+      <div class="col-title">✓ Live / Done</div>
+      <span class="col-count">1</span>
+    </div>
+    <div class="col-body">
+
+      <div class="card rev-pipeline">
+        <div class="card-top">
+          <div><div class="card-title">VLG Signal Hub</div><div class="card-client">vlg-signal-hub.vercel.app</div></div>
+          <div class="priority p-low"></div>
+        </div>
+        <div class="tags"><span class="biz-tag biz-vlg">VLG</span><span class="rev-badge rb-pipeline">💰 Pipeline · Sales Engine</span></div>
+        <div class="card-desc">Live. 4,371 contacts, signal scoring, ICP qualify layer, Review Queue, HubSpot sync.</div>
+        <div class="stage-bar"><div class="stage-bar-label">Progress</div><div class="stage-track"><div class="stage-fill fill-100"></div></div></div>
+        <div class="agents"><span class="agent agent-glen">🎸 Glen</span></div>
+        <a href="https://vlg-signal-hub.vercel.app" target="_blank" class="card-link">↗ Open</a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="footer">
+  <span>Mission Control — Velocity Logic Group · Mar 9, 2026</span>
+  <span>Agents: 🎸 Glen · 👤 Vik · India Team</span>
+</div>
+
+</body>
+</html>
